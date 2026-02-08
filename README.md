@@ -8,12 +8,6 @@ Human‑centric generative AI health platform that turns complex medical data an
 - Guides safe next steps through Smart Interventions: teleconsult booking, caregiver alerts, home monitoring plans
 - Supports both Patient view (risk meter, vitals, symptoms, interventions) and Doctor view (risk‑sorted list)
 
-## Live Demo (Local)
-- Requirements: Any static server (Python 3 recommended)
-- Start:
-  - macOS/Linux: `python3 -m http.server 8000`
-  - Windows: `py -m http.server 8000`
-- Open: http://localhost:8000/ in your browser (Safari/Chrome/Edge)
 
 ## Quick Start
 1. Patient tab
