@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ArogyaGenix</title>
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<div id="login-overlay" class="login-overlay">
+  <div class="login-card">
+    <div class="login-title">ArogyaGenix</div>
+    <div class="login-sub">Choose your role to continue</div>
+    <div class="role-actions">
+      <button id="btn-login-patient" class="role-btn primary">Patient</button>
+      <button id="btn-login-doctor" class="role-btn">Doctor</button>
+    </div>
+  </div>
+</div>
+<header class="header">
+<div class="branding">ArogyaGenix</div>
+<nav class="nav">
+<button class="tab-btn" data-tab="patient">Patient</button>
+<button class="tab-btn" data-tab="doctor">Doctor</button>
+<button class="tab-btn" data-tab="demo">Demo</button>
+<button class="tab-btn" data-tab="community">Community</button>
+</nav>
+<button id="btn-profile" class="avatar-btn"><span id="avatar-initials">👤</span></button>
+</header>
+<main class="main">
+<section id="patient" class="tab">
+<div class="panel">
+<h2><svg class="icon" viewBox="0 0 24 24"><rect x="3" y="7" width="18" height="10" rx="2"></rect><path d="M12 3v8"></path><path d="M9 9l3 3 3-3"></path></svg>Silent Signal Ingestion</h2>
+<div class="ingest-grid">
+<div class="card">
+<h3>Unused Medication QR</h3>
+<input id="qr-med" placeholder="Medicine name">
+<button id="btn-qr">Scan</button>
+</div>
+<div class="card">
+<h3>Smart Bottle Inactivity</h3>
+<select id="bottle-med">
+<option>BP Medicine</option>
+<option>Diabetes Medicine</option>
+<option>Asthma Inhaler</option>
+</select>
+<input id="bottle-days" type="number" min="0" placeholder="Days inactive">
+<button id="btn-bottle">Record</button>
+</div>
+<div class="card">
+<h3>Manual Stop</h3>
+<select id="manual-med">
+<option>BP Medicine</option>
+<option>Diabetes Medicine</option>
+<option>Asthma Inhaler</option>
+</select>
+<input id="manual-days" type="number" min="0" placeholder="Days since stop">
+<button id="btn-manual">Submit</button>
+</div>
+</div>
+<div class="panel">
+<h2><svg class="icon" viewBox="0 0 24 24"><path d="M3 13h4l2-6 3 12 2-6h5"></path></svg>Health Trends</h2>
+<div class="small-note">Weekly vitals overview</div>
+<div class="chart-wrap">
+  <canvas id="trends-chart"></canvas>
+  <div id="trends-tooltip" class="chart-tooltip hidden"></div>
+  <div class="chart-legend">
+    <span class="dot dot-sys"></span> Systolic
+    <span class="dot dot-dia"></span> Diastolic
+    <span class="dot dot-glu"></span> Glucose
+    <span class="dot dot-peak"></span> Peak Flow
+  </div>
+  <div class="small-note">Mon–Sun • synthetic demo data</div>
+  </div>
+</div>
+</div>
+<div class="panel panel-highlight">
+<h2><svg class="icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"></circle><path d="M12 12l5-3"></path></svg>Risk Meter</h2>
+<div class="risk-meter">
+<div id="risk-indicator" class="risk-indicator">LOW</div>
+</div>
+<div class="risk-labels"><span>LOW</span><span>MODERATE</span><span>HIGH</span></div>
+<div id="time-impact" class="time-impact"></div>
+<div class="meta-row"><span id="risk-status" class="status-badge">LOW – Continue monitoring</span><span id="risk-updated" class="meta"></span></div>
+</div>
+<div class="panel">
+<h2><svg class="icon" viewBox="0 0 24 24"><rect x="6" y="8" width="12" height="8" rx="4"></rect><path d="M12 8v8"></path></svg>Explain-My-Medicine</h2>
+<div class="explain-row">
+<select id="explain-lang">
+<option value="en">English</option>
+<option value="hi">Hindi</option>
+<option value="hinglish">Hinglish</option>
+</select>
+<input id="explain-med" placeholder="Medicine name">
+<button id="btn-explain">Explain</button>
+</div>
+<div id="explain-output" class="explain-output explain-card"></div>
+<div class="explain-meta"><span id="explain-confidence" class="badge"></span><span id="explain-updated" class="meta"></span><span class="tip" id="explain-tip" data-tip="AI explanation generated from medication class and current risk context">AI</span></div>
+</div>
+<div class="panel">
+<h2><svg class="icon" viewBox="0 0 24 24"><path d="M3 13h4l2-6 3 12 2-6h5"></path></svg>Vitals & Symptoms</h2>
+<div class="grid-2">
+<div class="card">
+<h3>Vitals</h3>
+<div class="explain-row">
+<input id="bp-sys" type="number" placeholder="Systolic mmHg">
+<input id="bp-dia" type="number" placeholder="Diastolic mmHg">
+</div>
+<div class="explain-row">
+<input id="glu" type="number" placeholder="Glucose mg/dL">
+<input id="peak" type="number" placeholder="Peak Flow %">
+</div>
+</div>
+<div class="card">
+<h3>Recent Symptoms</h3>
+<div class="checkboxes">
+<label><input type="checkbox" id="symptom-dizzy"> Dizziness</label>
+<label><input type="checkbox" id="symptom-headache"> Headache</label>
+<label><input type="checkbox" id="symptom-tightness"> Chest tightness</label>
+<label><input type="checkbox" id="symptom-wheeze"> Wheeze</label>
+<label><input type="checkbox" id="symptom-thirst"> Thirst</label>
+<label><input type="checkbox" id="symptom-fatigue"> Fatigue</label>
+</div>
+</div>
+</div>
+<button id="btn-vitals">Update risk from vitals</button>
+</div>
+<div class="panel">
+<h2><svg class="icon" viewBox="0 0 24 24"><circle cx="8" cy="8" r="3"></circle><circle cx="16" cy="8" r="3"></circle><path d="M2 20c0-4 3-6 6-6"></path><path d="M22 20c0-4-3-6-6-6"></path></svg>Caregiver Preferences</h2>
+<div class="explain-row">
+<input id="caregiver-contact" placeholder="Caregiver phone or email">
+<button id="btn-save-caregiver">Save</button>
+</div>
+<div class="small-note">Alerts will be sent when risk escalates.</div>
+</div>
+<div class="panel">
+<h2><svg class="icon" viewBox="0 0 24 24"><path d="M12 2l2 4 4 2-4 2-2 4-2-4-4-2 4-2z"></path><circle cx="19" cy="19" r="2"></circle></svg>Smart Interventions</h2>
+<div class="small-note">Smart Interventions are proactive, risk-aware actions tailored to your current situation. They guide safe steps, connect you to care, and help prevent harm.</div>
+<div class="interventions">
+<button id="btn-tele">Reserve Teleconsult Slot</button>
+<button id="btn-caregiver">Notify Caregiver</button>
+<button id="btn-steps">Suggest Safe Interim Steps</button>
+</div>
+<div class="interventions-grid">
+  <div class="card">
+    <h3>Book Teleconsult</h3>
+    <input id="tele-dt" type="datetime-local">
+    <button id="btn-tele-2">Book</button>
+    <div class="small-note">Pick a time within 24–48 hours for moderate risk, sooner for high risk.</div>
+  </div>
+  <div class="card">
+    <h3>Caregiver Alert</h3>
+    <div class="small-note">Uses caregiver contact from your profile.</div>
+    <button id="btn-caregiver-2">Send Alert</button>
+  </div>
+  <div class="card">
+    <h3>Safety Tips</h3>
+    <div id="safety-tips" class="small-note">Enter a medicine or update vitals to see tailored tips.</div>
+  </div>
+  <div class="card">
+    <h3>Home Monitoring Plan</h3>
+    <label><input type="checkbox" id="hm-bp"> BP check twice daily</label>
+    <label><input type="checkbox" id="hm-glucose"> Glucose log after meals</label>
+    <label><input type="checkbox" id="hm-peak"> Peak flow mornings</label>
+    <button id="btn-hm-start">Start 7-day Plan</button>
+  </div>
+  <div class="card">
+    <h3>Medication Reconciliation</h3>
+    <textarea id="med-list" rows="3" placeholder="List medicines you're taking"></textarea>
+    <button id="btn-med-check">Flag Issues</button>
+  </div>
+  <div class="card">
+    <h3>Recommended Actions</h3>
+    <ul id="recommend-list" class="recommend-list"></ul>
+    <button id="btn-download-summary">Download Summary</button>
+  </div>
+</div>
+<div id="action-log" class="action-log"></div>
+</div>
+</section>
+<section id="doctor" class="tab hidden">
+<div class="panel">
+<h2>Risk-Sorted Patients</h2>
+<div class="controls">
+<button id="btn-load">Load Synthetic Patients</button>
+<input id="filter-text" placeholder="Filter by condition">
+</div>
+<table class="table">
+<thead>
+<tr>
+<th>Patient</th>
+<th>Age</th>
+<th>Condition</th>
+<th>Risk</th>
+<th>Time-to-Impact</th>
+<th>Explanation</th>
+<th>Suggested Intervention</th>
+</tr>
+</thead>
+<tbody id="doctor-table"></tbody>
+</table>
+</div>
+</section>
+<section id="demo" class="tab hidden">
+<div class="panel">
+<h2>Maria, 68</h2>
+<div class="demo-steps">
+<button id="demo-1">1. Medication disposal event</button>
+<button id="demo-2">2. Similar pattern matches</button>
+<button id="demo-3">3. Predicted risk timeline</button>
+<button id="demo-4">4. ArogyaGenix explanation</button>
+<button id="demo-5">5. Doctor alert + action</button>
+<button id="demo-6">6. Avoided ER visit</button>
+</div>
+<div id="demo-output" class="demo-output"></div>
+</div>
+</section>
+<section id="community" class="tab hidden">
+<div class="panel">
+<h2>Community Health Radar</h2>
+<div class="radar-controls">
+<button id="btn-radar">Aggregate Anonymized Risk</button>
+</div>
+<div id="radar-output" class="radar-output"></div>
+</div>
+</section>
+</main>
+<div id="profile-modal" class="modal hidden">
+  <div class="modal-card">
+    <h3>Patient Profile</h3>
+    <div class="grid-2">
+      <div class="card">
+        <div class="explain-row">
+          <input id="profile-name" placeholder="Full name">
+          <input id="profile-age" type="number" placeholder="Age">
+        </div>
+        <div class="explain-row">
+          <select id="profile-gender">
+            <option value="">Gender</option>
+            <option>Female</option>
+            <option>Male</option>
+            <option>Other</option>
+          </select>
+          <select id="profile-blood">
+            <option value="">Blood Group</option>
+            <option>A+</option><option>A-</option>
+            <option>B+</option><option>B-</option>
+            <option>AB+</option><option>AB-</option>
+            <option>O+</option><option>O-</option>
+          </select>
+        </div>
+        <div class="explain-row">
+          <input id="profile-height" type="number" placeholder="Height (cm)">
+          <input id="profile-weight" type="number" placeholder="Weight (kg)">
+        </div>
+      </div>
+      <div class="card">
+        <div class="explain-row">
+          <input id="profile-phone" placeholder="Phone">
+          <input id="profile-email" placeholder="Email">
+        </div>
+        <div class="small-note">BMI: <span id="profile-bmi">—</span></div>
+      </div>
+    </div>
+    <div class="explain-row">
+      <button id="btn-save-profile" class="btn-success">Save</button>
+      <button id="btn-close-profile" class="btn-secondary">Close</button>
+      <button id="btn-logout-profile" class="btn-secondary">Logout</button>
+    </div>
+  </div>
+</div>
+<footer class="footer">
+<div>Predictive Risk Score, not diagnosis. Ethical, human-centric.</div>
+<div>Powered by temporal inference and plain-language AI explanations.</div>
+</footer>
+<script src="app.js"></script>
+</body>
+</html>
