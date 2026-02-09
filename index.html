@@ -18,27 +18,42 @@
   </div>
 </div>
 <header class="header">
-<div class="branding">ArogyaGenix</div>
+<div class="branding"><span class="quick-emoji">🩺</span>ArogyaGenix</div>
 <nav class="nav">
-<button class="tab-btn" data-tab="patient">Patient</button>
-<button class="tab-btn" data-tab="doctor">Doctor</button>
-<button class="tab-btn" data-tab="demo">Demo</button>
-<button class="tab-btn" data-tab="community">Community</button>
+<button class="tab-btn" data-tab="patient"><svg class="icon" viewBox="0 0 24 24"><circle cx="12" cy="7" r="4"></circle><path d="M5 21c0-4 3-6 7-6s7 2 7 6"></path></svg>Patient</button>
+<button class="tab-btn" data-tab="doctor"><svg class="icon" viewBox="0 0 24 24"><circle cx="8" cy="8" r="3"></circle><circle cx="16" cy="8" r="3"></circle><path d="M2 20c0-4 3-6 6-6"></path><path d="M22 20c0-4-3-6-6-6"></path></svg>Doctor</button>
+<button class="tab-btn" data-tab="demo"><svg class="icon" viewBox="0 0 24 24"><polygon points="8,5 19,12 8,19"></polygon></svg>Demo</button>
+<button class="tab-btn" data-tab="community"><svg class="icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"></circle><path d="M7 8h10"></path><path d="M7 12h10"></path><path d="M7 16h10"></path></svg>Community</button>
 </nav>
-<button id="btn-profile" class="avatar-btn"><span id="avatar-initials">👤</span></button>
+<div class="header-actions">
+  <button id="go-trends" class="icon-btn" title="Health Trends"><span class="quick-emoji">📈</span></button>
+  <button id="go-risk" class="icon-btn" title="Risk Meter"><span class="quick-emoji">⚠️</span></button>
+  <button id="go-explain" class="icon-btn" title="Explain-My-Medicine"><span class="quick-emoji">💊</span></button>
+  <button id="go-interventions" class="icon-btn" title="Smart Interventions"><span class="quick-emoji">🛠️</span></button>
+  <button id="btn-theme" class="icon-btn" title="Dark Mode"><span class="quick-emoji">🌙</span></button>
+  <button id="btn-profile" class="avatar-btn"><img id="avatar-photo" class="avatar-photo hidden" alt=""><span id="avatar-initials">👤</span></button>
+</div>
 </header>
 <main class="main">
+<section class="panel hero-card">
+  <div class="hero-title">From Missed Pills to Meaningful Prevention</div>
+  <div class="hero-sub">ArogyaGenix detects early medication non‑adherence signals, explains health consequences in clear language, and guides action before emergencies occur.</div>
+  <div class="disclaimer-badge">Predictive and educational — not a diagnosis</div>
+</section>
 <section id="patient" class="tab">
-<div class="panel">
-<h2><svg class="icon" viewBox="0 0 24 24"><rect x="3" y="7" width="18" height="10" rx="2"></rect><path d="M12 3v8"></path><path d="M9 9l3 3 3-3"></path></svg>Silent Signal Ingestion</h2>
+<div id="patient-trends" class="panel">
+<h2><span class="quick-emoji">🔔</span>Silent Signal Ingestion</h2>
+<div class="small-note">Capture real-world signals when medicines are unused or stopped. These entries inform the Risk Meter and tailor Explain‑My‑Medicine and Smart Interventions.</div>
 <div class="ingest-grid">
 <div class="card">
 <h3>Unused Medication QR</h3>
+<div class="small-note">Scan a QR from a bottle or slip to log a disposal or non‑use event. Example: Paracetamol, Combiflam.</div>
 <input id="qr-med" placeholder="Medicine name">
 <button id="btn-qr">Scan</button>
 </div>
 <div class="card">
 <h3>Smart Bottle Inactivity</h3>
+<div class="small-note">Choose a medicine and days inactive. We infer an adherence gap and estimate time‑to‑impact.</div>
 <select id="bottle-med">
 <option>BP Medicine</option>
 <option>Diabetes Medicine</option>
@@ -49,6 +64,7 @@
 </div>
 <div class="card">
 <h3>Manual Stop</h3>
+<div class="small-note">Record that you stopped a medicine and when. This updates your timeline and risk.</div>
 <select id="manual-med">
 <option>BP Medicine</option>
 <option>Diabetes Medicine</option>
@@ -74,7 +90,7 @@
   </div>
 </div>
 </div>
-<div class="panel panel-highlight">
+<div id="patient-risk" class="panel panel-highlight">
 <h2><svg class="icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"></circle><path d="M12 12l5-3"></path></svg>Risk Meter</h2>
 <div class="risk-meter">
 <div id="risk-indicator" class="risk-indicator">LOW</div>
@@ -83,7 +99,7 @@
 <div id="time-impact" class="time-impact"></div>
 <div class="meta-row"><span id="risk-status" class="status-badge">LOW – Continue monitoring</span><span id="risk-updated" class="meta"></span></div>
 </div>
-<div class="panel">
+<div id="patient-explain" class="panel">
 <h2><svg class="icon" viewBox="0 0 24 24"><rect x="6" y="8" width="12" height="8" rx="4"></rect><path d="M12 8v8"></path></svg>Explain-My-Medicine</h2>
 <div class="explain-row">
 <select id="explain-lang">
@@ -92,12 +108,13 @@
 <option value="hinglish">Hinglish</option>
 </select>
 <input id="explain-med" placeholder="Medicine name">
+    <button id="btn-mic" class="mic-btn" title="Voice"><svg class="icon" viewBox="0 0 24 24"><path d="M12 3a3 3 0 0 1 3 3v6a3 3 0 0 1-6 0V6a3 3 0 0 1 3-3z"></path><path d="M19 10a7 7 0 0 1-14 0"></path><path d="M12 17v4"></path><path d="M8 21h8"></path></svg>Mic</button>
 <button id="btn-explain">Explain</button>
 </div>
 <div id="explain-output" class="explain-output explain-card"></div>
 <div class="explain-meta"><span id="explain-confidence" class="badge"></span><span id="explain-updated" class="meta"></span><span class="tip" id="explain-tip" data-tip="AI explanation generated from medication class and current risk context">AI</span></div>
 </div>
-<div class="panel">
+<div id="patient-interventions" class="panel">
 <h2><svg class="icon" viewBox="0 0 24 24"><path d="M3 13h4l2-6 3 12 2-6h5"></path></svg>Vitals & Symptoms</h2>
 <div class="grid-2">
 <div class="card">
@@ -177,6 +194,14 @@
 </div>
 <div id="action-log" class="action-log"></div>
 </div>
+<div class="panel">
+  <h2>Explainability Timeline (Cause → Effect)</h2>
+  <div class="small-note">A time-based visual story of what happens after medication is stopped</div>
+  <div id="timeline" class="timeline"></div>
+  <div class="explain-row">
+    <button id="btn-gen-timeline">Generate Timeline</button>
+  </div>
+</div>
 </section>
 <section id="doctor" class="tab hidden">
 <div class="panel">
@@ -203,16 +228,107 @@
 </section>
 <section id="demo" class="tab hidden">
 <div class="panel">
-<h2>Maria, 68</h2>
-<div class="demo-steps">
-<button id="demo-1">1. Medication disposal event</button>
-<button id="demo-2">2. Similar pattern matches</button>
-<button id="demo-3">3. Predicted risk timeline</button>
-<button id="demo-4">4. ArogyaGenix explanation</button>
-<button id="demo-5">5. Doctor alert + action</button>
-<button id="demo-6">6. Avoided ER visit</button>
+  <h2>Maria, 68</h2>
+  <div class="small-note">A 60‑second story showing prevention powered by early warnings</div>
+  <div class="demo-steps step-grid">
+    <div class="step-item">
+      <button id="demo-1">1. Medication disposal event</button>
+      <div class="micro">Early warning recorded</div>
+    </div>
+    <div class="step-item">
+      <button id="demo-2">2. Similar pattern matches</button>
+      <div class="micro">Based on similar patients</div>
+    </div>
+    <div class="step-item">
+      <button id="demo-3">3. Predicted timeline</button>
+      <div class="micro">Next 3–5 days</div>
+    </div>
+    <div class="step-item">
+      <button id="demo-4">4. ArogyaGenix explanation</button>
+      <div class="micro">Plain, elder‑friendly language</div>
+    </div>
+    <div class="step-item">
+      <button id="demo-5">5. Doctor alert + action</button>
+      <div class="micro">Timely care coordination</div>
+    </div>
+    <div class="step-item">
+      <button id="demo-6">6. Avoided ER visit</button>
+      <div class="micro">Prevention achieved</div>
+    </div>
+  </div>
+  <div id="demo-output" class="demo-output"></div>
 </div>
-<div id="demo-output" class="demo-output"></div>
+
+<div class="panel risk-card">
+  <h2>Risk Meter</h2>
+  <div class="small-note">Shows current risk level and why it changed</div>
+  <div class="risk-meter">
+    <div class="risk-indicator" style="left: 50%">MODERATE</div>
+  </div>
+  <div class="risk-labels"><span>LOW</span><span>MODERATE</span><span>HIGH</span></div>
+  <div class="meta-row">
+    <span class="status-badge warn">MODERATE — Keep monitoring; consider teleconsult</span>
+    <span class="meta">Not a diagnosis</span>
+  </div>
+  <div class="small-note">Contributing signals: disposal event recorded • smart bottle inactivity • self‑reported stop</div>
+</div>
+
+<div class="panel explain-hero">
+  <h2>ArogyaGenix Explanation</h2>
+  <div class="explain-row">
+    <select id="explain-lang-demo">
+      <option value="en">English</option>
+      <option value="hi">Hindi</option>
+      <option value="hinglish">Hinglish</option>
+    </select>
+  </div>
+  <div class="explain-card">
+    <div class="explain-output">
+      When regular BP medicine is missed, blood pressure can rise over the next 3–5 days. This increases strain on the heart and may trigger headaches or chest discomfort. Please resume your medicine as advised, monitor vitals, and contact your doctor if symptoms worsen.
+    </div>
+  </div>
+  <div class="explain-meta">
+    <span class="badge">Clear, elder‑friendly guidance</span>
+    <span class="meta">Educational — not a diagnosis</span>
+  </div>
+</div>
+
+<div class="panel impact-card">
+  <h2>Avoided ER Visit</h2>
+  <div class="small-note">Prevention achieved, stress avoided, and costs reduced</div>
+  <div class="impact-grid">
+    <div class="impact-item">
+      <div class="impact-value">1 ER</div>
+      <div class="impact-label">visit avoided</div>
+    </div>
+    <div class="impact-item">
+      <div class="impact-value">48h</div>
+      <div class="impact-label">quicker care</div>
+    </div>
+    <div class="impact-item">
+      <div class="impact-value">₹20k+</div>
+      <div class="impact-label">estimated savings</div>
+    </div>
+  </div>
+</div>
+<div class="panel">
+  <h2>Optional Learning</h2>
+  <div class="small-note">Explore badges and tutorials at your own pace</div>
+  <div id="demo-progress" class="progress"><div id="demo-progress-bar" class="progress-bar"></div></div>
+  <div id="demo-achievements" class="achievements"></div>
+</div>
+<div class="panel">
+  <h2>Demo Data Explorer</h2>
+  <div class="small-note">Snapshot of anonymized sample patients</div>
+  <div class="controls">
+    <button id="btn-demo-data">Load 50 Samples</button>
+  </div>
+  <table class="table">
+    <thead>
+      <tr><th>Patient</th><th>Age</th><th>Condition</th><th>Risk</th><th>TTI</th></tr>
+    </thead>
+    <tbody id="demo-table"></tbody>
+  </table>
 </div>
 </section>
 <section id="community" class="tab hidden">
@@ -223,11 +339,58 @@
 </div>
 <div id="radar-output" class="radar-output"></div>
 </div>
+<div class="panel">
+  <h2>Family Mode</h2>
+  <div class="small-note">Add family members to manage profiles and alerts</div>
+  <div class="explain-row">
+    <input id="fam-name" placeholder="Name">
+    <input id="fam-age" type="number" placeholder="Age">
+    <select id="fam-relation">
+      <option value="">Relation</option>
+      <option>Parent</option><option>Spouse</option><option>Child</option><option>Sibling</option><option>Relative</option>
+    </select>
+    <select id="fam-condition">
+      <option value="">Condition</option>
+      <option>Hypertension</option><option>Diabetes</option><option>Asthma</option><option>Thyroid</option>
+    </select>
+    <button id="btn-fam-add">Add Member</button>
+  </div>
+  <div id="fam-list" class="family-list"></div>
+</div>
+</section>
+<section class="panel clinician-card">
+  <h2>Clinician View</h2>
+  <div class="small-note">Risk‑sorted list with explanation and suggested action</div>
+  <div class="explain-row">
+    <div class="card">
+      <h3>Maria, 68 — MODERATE</h3>
+      <div class="small-note">Signals: disposal • inactivity • manual stop</div>
+      <div class="small-note">Explanation: BP likely to rise in 3–5 days; monitor and resume</div>
+      <div class="explain-row">
+        <button class="btn-warn">Schedule Teleconsult</button>
+        <button class="btn-secondary">Share Care Plan</button>
+      </div>
+    </div>
+    <div class="card">
+      <h3>Others</h3>
+      <div class="small-note">Sorted by current risk to prioritize care</div>
+    </div>
+  </div>
 </section>
 </main>
+<section class="panel banner-closing">
+  <div class="closing-text">Every unused pill carries a warning. We built the system that finally listens.</div>
+</section>
 <div id="profile-modal" class="modal hidden">
   <div class="modal-card">
-    <h3>Patient Profile</h3>
+    <div class="profile-header">
+      <div class="profile-brand">Patient Profile</div>
+      <div class="profile-sub">Personalize your ArogyaGenix experience</div>
+    </div>
+    <div class="profile-avatar-wrap">
+      <img id="profile-avatar-preview" class="profile-avatar" alt="">
+      <button id="btn-change-photo" class="btn-secondary">Change Photo</button>
+    </div>
     <div class="grid-2">
       <div class="card">
         <div class="explain-row">
@@ -259,8 +422,21 @@
           <input id="profile-phone" placeholder="Phone">
           <input id="profile-email" placeholder="Email">
         </div>
-        <div class="small-note">BMI: <span id="profile-bmi">—</span></div>
+        <div class="explain-row">
+          <input id="profile-photo-file" type="file" accept="image/*" class="hidden">
+          <button id="btn-clear-photo" class="btn-secondary">Remove</button>
+        </div>
+        <div class="small-note">BMI: <span id="profile-bmi">—</span> <span id="profile-bmi-status" class="badge"></span></div>
       </div>
+    </div>
+    <div class="panel">
+      <h2><svg class="icon" viewBox="0 0 24 24"><path d="M6 19l6-6 6 6"></path><path d="M6 5h12"></path></svg>Quick Health Actions</h2>
+      <div class="interventions">
+        <button id="btn-emergency">Emergency Info</button>
+        <button id="btn-reminder">Set Reminder</button>
+        <button id="btn-near-care">Nearest Care</button>
+      </div>
+      <div id="quick-output" class="small-note"></div>
     </div>
     <div class="explain-row">
       <button id="btn-save-profile" class="btn-success">Save</button>

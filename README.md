@@ -1,12 +1,43 @@
-# ArogyaGenix
+# ArogyaGenix — From Missed Pills to Meaningful Prevention
 
 Human‑centric generative AI health platform that turns complex medical data and silent medication non‑adherence signals into early, explainable, and actionable health insights for patients and doctors.
+  
+Predictive and educational — not a diagnosis.
 
 ## Overview
 - Translates non‑adherence and vitals into a Predictive Risk Score (LOW / MODERATE / HIGH) with time‑to‑impact guidance
 - Generates plain‑language, multilingual explanations (English / Hindi / Hinglish) for medicines and risk context
 - Guides safe next steps through Smart Interventions: teleconsult booking, caregiver alerts, home monitoring plans
 - Supports both Patient view (risk meter, vitals, symptoms, interventions) and Doctor view (risk‑sorted list)
+
+## Prevention Story (60 seconds)
+1. Medication disposal → early warning recorded  
+2. Pattern matches → based on similar patients  
+3. Predicted timeline → next 3–5 days  
+4. ArogyaGenix explanation → plain, elder‑friendly language (English/Hindi/Hinglish)  
+5. Doctor alert → timely care coordination  
+6. Avoided ER visit → prevention achieved, stress avoided, costs reduced  
+
+## Risk Meter (Meaning)
+- LOW: keep routine monitoring and adherence
+- MODERATE: resume medicine, monitor vitals, consider teleconsult
+- HIGH: escalate care promptly; follow safety tips
+- Not a diagnosis — use for early guidance
+
+## ArogyaGenix Explanation (Centerpiece)
+- Communicates consequences calmly and clearly without fear
+- Example: “When BP medicine is missed, blood pressure can rise over the next 3–5 days. Please resume medicine as advised, check vitals, and contact your doctor if symptoms worsen.”
+- Language toggle: English / Hindi / Hinglish
+
+## Impact: Avoided ER Visit
+- Prevention achieved: early action guided
+- Stress avoided: scenario explained in simple language
+- Estimated cost saved: ₹20k+ (illustrative, depends on context)
+
+## Clinician View Snapshot
+- Risk‑sorted list highlights Maria (MODERATE) and contributing signals (disposal, inactivity, manual stop)
+- Suggested actions: schedule teleconsult, share care plan
+- Plain‑language explanation to support shared decision‑making
 
 ## Live Demo (Local)
 - Requirements: Any static server (Python 3 recommended)
@@ -46,6 +77,7 @@ Human‑centric generative AI health platform that turns complex medical data an
 - No PHI is transmitted; synthetic patient data used for demos
 - Patient profile is stored locally in the browser (localStorage)
 - Predictive Risk Score offers guidance, not a diagnosis; consult a clinician for decisions
+- Human‑centric language and safety‑first defaults across the experience
 
 ## Roadmap
 - Secure authentication and role‑based access
@@ -63,3 +95,6 @@ Human‑centric generative AI health platform that turns complex medical data an
 - Uses vanilla HTML/CSS/JS to maximize portability and demo speed
 - Run via any static server; no build step required
 - Contributions: keep UI accessible, color contrast high, and language clear; avoid introducing secrets
+
+## Closing Line
+Every unused pill carries a warning. We built the system that finally listens.

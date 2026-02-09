@@ -16,8 +16,25 @@ function enterRole(role){
 }
 if(btnLoginPatient){btnLoginPatient.addEventListener("click",()=>enterRole("patient"))}
 if(btnLoginDoctor){btnLoginDoctor.addEventListener("click",()=>enterRole("doctor"))}
-const savedRole=localStorage.getItem("role")
-if(savedRole){enterRole(savedRole)}
+function gotoSection(id){
+  enterRole("patient")
+  setTimeout(()=>{
+    const el=document.getElementById(id)
+    if(el)el.scrollIntoView({behavior:"smooth",block:"start"})
+  },50)
+}
+const goTrends=document.getElementById("go-trends")
+const goRisk=document.getElementById("go-risk")
+const goExplain=document.getElementById("go-explain")
+const goInterv=document.getElementById("go-interventions")
+if(goTrends)goTrends.addEventListener("click",()=>gotoSection("patient-trends"))
+if(goRisk)goRisk.addEventListener("click",()=>gotoSection("patient-risk"))
+if(goExplain)goExplain.addEventListener("click",()=>gotoSection("patient-explain"))
+if(goInterv)goInterv.addEventListener("click",()=>gotoSection("patient-interventions"))
+const btnTheme=document.getElementById("btn-theme")
+function setTheme(d){const html=document.documentElement;d?html.classList.add("dark"):html.classList.remove("dark");localStorage.setItem("darkMode",d?"1":"0");drawTrends()}
+if(btnTheme){btnTheme.addEventListener("click",()=>{const isDark=document.documentElement.classList.contains("dark");setTheme(!isDark)})}
+;(function(){const pref=localStorage.getItem("darkMode");if(pref==="1")setTheme(true)})()
 function seedRandom(seed){let t=seed;return function(){t=(t*9301+49297)%233280;return t/233280}}
 const rng=seedRandom(42)
 function pick(arr){return arr[Math.floor(rng()*arr.length)]}
@@ -86,16 +103,27 @@ function drawTrends(){
   const step=(x1-x0)/(days.length-1)
   function yScale(v){return y1-(v-min)/(max-min)*(y1-y0)}
   function xAt(i){return x0+step*i}
-  function drawLine(color,arr){
+  function drawSeries(color,arr){
     ctx.strokeStyle=color;ctx.lineWidth=2;ctx.beginPath()
     arr.forEach((v,i)=>{const x=xAt(i),y=yScale(v);if(i===0)ctx.moveTo(x,y);else ctx.lineTo(x,y)})
     ctx.stroke()
+    const grad=ctx.createLinearGradient(0,y0,0,y1)
+    grad.addColorStop(0,`${color}55`)
+    grad.addColorStop(1,`${color}10`)
+    ctx.fillStyle=grad
+    ctx.beginPath()
+    arr.forEach((v,i)=>{const x=xAt(i),y=yScale(v);if(i===0)ctx.moveTo(x,y);else ctx.lineTo(x,y)})
+    ctx.lineTo(xAt(arr.length-1),y1);ctx.lineTo(xAt(0),y1);ctx.closePath();ctx.fill()
     arr.forEach((v,i)=>{const x=xAt(i),y=yScale(v);ctx.fillStyle=color;ctx.beginPath();ctx.arc(x,y,3,0,Math.PI*2);ctx.fill()})
   }
-  drawLine("#22C55E",weeklyVitals.map(v=>v.sys))
-  drawLine("#8B5CF6",weeklyVitals.map(v=>v.dia))
-  drawLine("#F59E0B",weeklyVitals.map(v=>v.glu))
-  drawLine("#2563EB",weeklyVitals.map(v=>v.peak))
+  const cSys=cssVar("--col-sys")||"#22C55E"
+  const cDia=cssVar("--col-dia")||"#EF4444"
+  const cGlu=cssVar("--col-glu")||"#F59E0B"
+  const cPeak=cssVar("--col-peak")||"#2563EB"
+  drawSeries(cSys,weeklyVitals.map(v=>v.sys))
+  drawSeries(cDia,weeklyVitals.map(v=>v.dia))
+  drawSeries(cGlu,weeklyVitals.map(v=>v.glu))
+  drawSeries(cPeak,weeklyVitals.map(v=>v.peak))
   ctx.fillStyle=cssVar("--muted")||"#475569";ctx.font="12px Inter, system-ui";ctx.textAlign="center"
   days.forEach((d,i)=>{ctx.fillText(d,xAt(i),H-10)})
 }
@@ -130,6 +158,7 @@ function signalEvent(type,med,days){
   const text=generateExplanation(med,evalRes.category,evalRes.tti,explainLang.value)
   explainOutput.textContent=text
   currentMed=med
+  captureLastStop(days)
   updateInterventions()
   if(explainConfidence){explainConfidence.textContent=`Confidence ${Math.round(evalRes.confidence)}%`}
   if(explainUpdated){explainUpdated.textContent=`Last updated: ${stamp()}`}
@@ -139,6 +168,36 @@ document.getElementById("btn-qr").addEventListener("click",()=>{const med=docume
 document.getElementById("btn-bottle").addEventListener("click",()=>{const med=document.getElementById("bottle-med").value;const days=parseInt(document.getElementById("bottle-days").value||"0",10);signalEvent("bottle",med,days)})
 document.getElementById("btn-manual").addEventListener("click",()=>{const med=document.getElementById("manual-med").value;const days=parseInt(document.getElementById("manual-days").value||"0",10);signalEvent("manual",med,days)})
 document.getElementById("btn-explain").addEventListener("click",()=>{const med=explainInput.value||"BP Medicine";const res=evaluateRisk(med,2);const text=generateExplanation(med,res.category,res.tti,explainLang.value);explainOutput.textContent=text;currentMed=med})
+const btnMic=document.getElementById("btn-mic")
+if(btnMic){
+  const SpeechRecognition=window.SpeechRecognition||window.webkitSpeechRecognition
+  btnMic.addEventListener("click",()=>{
+    if(!SpeechRecognition){
+      explainOutput.textContent="Voice not supported in this browser. Type medicine name."
+      return
+    }
+    const recog=new SpeechRecognition()
+    const lang=explainLang?.value||"en"
+    recog.lang=lang==="hi"?"hi-IN":lang==="hinglish"?"en-IN":"en-US"
+    recog.interimResults=false
+    recog.maxAlternatives=1
+    explainOutput.textContent="Listening…"
+    recog.start()
+    recog.onresult=(e)=>{
+      const heard=e.results[0][0].transcript.trim()
+      explainInput.value=heard
+      const res=evaluateRisk(heard,2)
+      const text=generateExplanation(heard,res.category,res.tti,explainLang.value)
+      explainOutput.textContent=text
+      currentMed=heard
+      recordAction(`Voice captured: ${heard}`)
+    }
+    recog.onerror=(err)=>{
+      explainOutput.textContent=`Voice error: ${err.error||"unknown"}`
+    }
+    recog.onend=()=>{}
+  })
+}
 function setRisk(cat){
   const meter=document.querySelector(".risk-meter")
   const w=meter.clientWidth
@@ -272,6 +331,114 @@ Safety tips:
   a.click()
   URL.revokeObjectURL(url)
   recordAction("Summary downloaded")
+})
+// Demo gamification
+const demoOut=document.getElementById("demo-output")
+const demoBar=document.getElementById("demo-progress-bar")
+const demoAch=document.getElementById("demo-achievements")
+let demoDone=new Set()
+function award(id,label){
+  if(demoDone.has(id))return
+  demoDone.add(id)
+  const b=document.createElement("span")
+  b.className="achievement-badge"
+  b.textContent=label
+  demoAch.appendChild(b)
+  const pct=Math.round((demoDone.size/6)*100)
+  demoBar.style.width=`${pct}%`
+}
+function step(id,msg,label){demoOut.textContent=msg;award(id,label)}
+const d1=document.getElementById("demo-1")
+const d2=document.getElementById("demo-2")
+const d3=document.getElementById("demo-3")
+const d4=document.getElementById("demo-4")
+const d5=document.getElementById("demo-5")
+const d6=document.getElementById("demo-6")
+if(d1)d1.addEventListener("click",()=>step(1,"You scanned disposal QR. Silent signal recorded.","QR Scout"))
+if(d2)d2.addEventListener("click",()=>step(2,"We matched similar past patterns to estimate risk.","Pattern Finder"))
+if(d3)d3.addEventListener("click",()=>step(3,"Risk timeline predicted with time-to-impact.","Risk Forecaster"))
+if(d4)d4.addEventListener("click",()=>step(4,"Plain-language explanation generated for next steps.","Explainer"))
+if(d5)d5.addEventListener("click",()=>step(5,"Doctor alerted with context and suggested action.","Care Connector"))
+if(d6)d6.addEventListener("click",()=>step(6,"Proactive actions avoided an ER visit.","Prevention Hero"))
+
+// Demo data explorer
+const btnDemoData=document.getElementById("btn-demo-data")
+const demoTable=document.getElementById("demo-table")
+function renderDemoData(){
+  const rows=patients.slice(0,50).map(p=>{
+    const r=evaluateRisk(p.medication,Math.floor(rng()*7)+1)
+    return `<tr class="${rowClass(r.category)}"><td>${p.name}</td><td>${p.age}</td><td>${p.condition}</td><td>${r.category}</td><td>${r.tti}</td></tr>`
+  })
+  demoTable.innerHTML=rows.join("")
+}
+if(btnDemoData)btnDemoData.addEventListener("click",renderDemoData)
+
+// Family mode
+const famName=document.getElementById("fam-name")
+const famAge=document.getElementById("fam-age")
+const famRel=document.getElementById("fam-relation")
+const famCond=document.getElementById("fam-condition")
+const famAdd=document.getElementById("btn-fam-add")
+const famList=document.getElementById("fam-list")
+function loadFamily(){
+  const arr=JSON.parse(localStorage.getItem("familyMembers")||"[]")
+  famList.innerHTML=arr.map((m,i)=>`<div class="family-card"><div><strong>${m.name}</strong> • ${m.relation}</div><div class="meta">${m.age} • ${m.condition}</div><div class="explain-row"><button data-i="${i}" class="btn-secondary btn-fam-remove">Remove</button></div></div>`).join("")
+  famList.querySelectorAll(".btn-fam-remove").forEach(btn=>{
+    btn.addEventListener("click",()=>{
+      const i=parseInt(btn.getAttribute("data-i"),10)
+      const cur=JSON.parse(localStorage.getItem("familyMembers")||"[]")
+      cur.splice(i,1)
+      localStorage.setItem("familyMembers",JSON.stringify(cur))
+      loadFamily()
+    })
+  })
+}
+if(famAdd){
+  famAdd.addEventListener("click",()=>{
+    const m={name:famName.value||"Unnamed",age:parseInt(famAge.value||"0",10),relation:famRel.value||"",condition:famCond.value||""}
+    const arr=JSON.parse(localStorage.getItem("familyMembers")||"[]")
+    arr.push(m)
+    localStorage.setItem("familyMembers",JSON.stringify(arr))
+    famName.value="";famAge.value="";famRel.value="";famCond.value=""
+    loadFamily()
+    recordAction(`Family member added: ${m.name}`)
+  })
+  loadFamily()
+}
+
+// Explainability Timeline
+const timeline=document.getElementById("timeline")
+const btnGenTimeline=document.getElementById("btn-gen-timeline")
+let lastStopDays=0
+function buildTimeline(med,days){
+  const base=categoryForMed(med)
+  const items=[
+    {t:"Day 0",s:"Stop "+med+" • routine disrupted"},
+    {t:"Day 1–2",s: base==="bp"?"BP variability rises":"Routine adherence drops"},
+    {t:"Day 3",s:"Risk increases • MODERATE"},
+    {t:"Day 5",s: base==="asthma"?"Wheeze/tightness risk":"Symptoms escalate"},
+    {t:"Action",s:"Teleconsult + caregiver alert"}
+  ]
+  timeline.innerHTML=items.map((it,i)=>{
+    const node=`<div class="timeline-node"><div class="t">${it.t}</div><div class="s">${it.s}</div></div>`
+    const arrow=i<items.length-1?`<span class="timeline-arrow">→</span>`:""
+    return node+arrow
+  }).join("")
+}
+if(btnGenTimeline)btnGenTimeline.addEventListener("click",()=>{
+  const med=currentMed||explainInput.value||"BP Medicine"
+  buildTimeline(med,lastStopDays||2)
+})
+// capture days from signals
+function captureLastStop(days){ lastStopDays=days }
+document.getElementById("btn-emergency").addEventListener("click",()=>{
+  document.getElementById("quick-output").textContent="Emergency: Dial 112 • Keep inhaler and BP cuff accessible • Share caregiver contact"
+})
+document.getElementById("btn-reminder").addEventListener("click",()=>{
+  document.getElementById("quick-output").textContent="Reminder set: Home BP at 8:00 AM • Hydration check at 2:00 PM"
+})
+document.getElementById("btn-near-care").addEventListener("click",()=>{
+  document.getElementById("quick-output").textContent="Nearest care: Community Clinic (2.1 km) • Teleconsult available"
 })
 function categoryForMed(med){
   const m=(med||"").toLowerCase().replace(/[^a-z0-9]/g,"")
@@ -498,22 +665,46 @@ function renderDoctor(){
 function rowClass(c){if(c==="HIGH")return "risk-high";if(c==="MODERATE")return "risk-moderate";return "risk-low"}
 function rank(c){if(c==="HIGH")return 3;if(c==="MODERATE")return 2;return 1}
 function suggestIntervention(cat){if(cat==="HIGH")return "Immediate teleconsult, caregiver ping, medication reconciliation";if(cat==="MODERATE")return "Teleconsult within 48h, home monitoring";return "Check-in message, reinforce routine"}
-const demoOut=document.getElementById("demo-output")
-document.getElementById("demo-1").addEventListener("click",()=>{demoOut.textContent="Maria scanned her unused BP pills. System recognized a disposal event."})
-document.getElementById("demo-2").addEventListener("click",()=>{demoOut.textContent="Matched similar patients with rising BP after stoppage. Early pattern detected."})
-document.getElementById("demo-3").addEventListener("click",()=>{demoOut.textContent="Risk timeline predicts MODERATE risk, impact in 3–5 days."})
-document.getElementById("demo-4").addEventListener("click",()=>{demoOut.textContent=generateExplanation("BP Medicine","MODERATE","3–5 days","en")})
-document.getElementById("demo-5").addEventListener("click",()=>{demoOut.textContent="Doctor alerted. Teleconsult scheduled. Caregiver notified."})
-document.getElementById("demo-6").addEventListener("click",()=>{demoOut.textContent="ER visit avoided. Cost saved. Maria felt supported and safe."})
+// old demo handlers replaced by gamified tutorial
 const radarOut=document.getElementById("radar-output")
 document.getElementById("btn-radar").addEventListener("click",()=>{
-  const sample=patients.slice(0,1000).map(p=>{const r=evaluateRisk(p.medication,Math.floor(rng()*7));return {cond:p.condition,cat:r.category}})
-  const agg={Hypertension:{LOW:0,MODERATE:0,HIGH:0},Diabetes:{LOW:0,MODERATE:0,HIGH:0},Asthma:{LOW:0,MODERATE:0,HIGH:0},Thyroid:{LOW:0,MODERATE:0,HIGH:0}}
-  sample.forEach(s=>agg[s.cond][s.cat]++)
-  radarOut.textContent=`Hypertension: L ${agg.Hypertension.LOW}, M ${agg.Hypertension.MODERATE}, H ${agg.Hypertension.HIGH} | Diabetes: L ${agg.Diabetes.LOW}, M ${agg.Diabetes.MODERATE}, H ${agg.Diabetes.HIGH} | Asthma: L ${agg.Asthma.LOW}, M ${agg.Asthma.MODERATE}, H ${agg.Asthma.HIGH} | Thyroid: L ${agg.Thyroid.LOW}, M ${agg.Thyroid.MODERATE}, H ${agg.Thyroid.HIGH}`
+  const sample=patients.slice(0,1000).map(p=>{
+    const r=evaluateRisk(p.medication,Math.floor(rng()*7)+1)
+    return {...p,cat:r.category,tti:r.tti}
+  })
+  const agg={Hypertension:{LOW:0,MODERATE:0,HIGH:0,total:0},Diabetes:{LOW:0,MODERATE:0,HIGH:0,total:0},Asthma:{LOW:0,MODERATE:0,HIGH:0,total:0},Thyroid:{LOW:0,MODERATE:0,HIGH:0,total:0}}
+  let totLow=0,totMod=0,totHigh=0,ageSum=0
+  sample.forEach(s=>{
+    agg[s.condition][s.cat]++
+    agg[s.condition].total++
+    ageSum+=s.age
+    if(s.cat==="LOW")totLow++
+    else if(s.cat==="MODERATE")totMod++
+    else totHigh++
+  })
+  const avgAge=Math.round(ageSum/sample.length)
+  function pct(a,b){return b?Math.round((a/b)*100):0}
+  function row(label,o){
+    const total=o.total
+    return `<tr><td>${label}</td><td>${total}</td><td>${o.LOW} (${pct(o.LOW,total)}%)</td><td>${o.MODERATE} (${pct(o.MODERATE,total)}%)</td><td>${o.HIGH} (${pct(o.HIGH,total)}%)</td><td>${pct(total,sample.length)}%</td></tr>`
+  }
+  radarOut.innerHTML=`
+    <div class="small-note">Population: 1000 • Average age: ${avgAge}</div>
+    <table class="table">
+      <thead><tr><th>Condition</th><th>Total</th><th>LOW</th><th>MODERATE</th><th>HIGH</th><th>% of Pop</th></tr></thead>
+      <tbody>
+        ${row("Hypertension",agg.Hypertension)}
+        ${row("Diabetes",agg.Diabetes)}
+        ${row("Asthma",agg.Asthma)}
+        ${row("Thyroid",agg.Thyroid)}
+      </tbody>
+    </table>
+    <div class="small-note">Overall risk distribution • LOW ${totLow} (${pct(totLow,sample.length)}%) • MODERATE ${totMod} (${pct(totMod,sample.length)}%) • HIGH ${totHigh} (${pct(totHigh,sample.length)}%)</div>
+  `
 })
 const avatarBtn=document.getElementById("btn-profile")
 const avatarText=document.getElementById("avatar-initials")
+const avatarPhoto=document.getElementById("avatar-photo")
 const modal=document.getElementById("profile-modal")
 const nameI=document.getElementById("profile-name")
 const ageI=document.getElementById("profile-age")
@@ -524,6 +715,11 @@ const weightI=document.getElementById("profile-weight")
 const phoneI=document.getElementById("profile-phone")
 const emailI=document.getElementById("profile-email")
 const bmiEl=document.getElementById("profile-bmi")
+const bmiStatus=document.getElementById("profile-bmi-status")
+const photoFile=document.getElementById("profile-photo-file")
+const btnClearPhoto=document.getElementById("btn-clear-photo")
+const profileAvatarPreview=document.getElementById("profile-avatar-preview")
+const btnChangePhoto=document.getElementById("btn-change-photo")
 function showModal(){modal.classList.remove("hidden")}
 function hideModal(){modal.classList.add("hidden")}
 avatarBtn.addEventListener("click",()=>{loadProfile();showModal()})
@@ -544,6 +740,14 @@ document.getElementById("btn-logout-profile").addEventListener("click",()=>{
 })
 function updateAvatar(p){
   const n=(p.name||"").trim()
+  const photo=localStorage.getItem("patientPhoto")
+  if(photo){
+    if(avatarPhoto){avatarPhoto.src=photo;avatarPhoto.classList.remove("hidden");avatarText.classList.add("hidden")}
+    if(profileAvatarPreview){profileAvatarPreview.src=photo}
+    return
+  }
+  avatarPhoto.classList.add("hidden")
+  avatarText.classList.remove("hidden")
   if(!n){avatarText.textContent="👤";return}
   const parts=n.split(/\s+/)
   const initials=(parts[0]?.[0]||"")+(parts[1]?.[0]||"")
@@ -552,7 +756,20 @@ function updateAvatar(p){
 function updateBmi(p){
   const h=p.height>0?p.height:parseFloat(heightI.value||"0")
   const w=p.weight>0?p.weight:parseFloat(weightI.value||"0")
-  if(h>0&&w>0){const m=h/100;const bmi=(w/(m*m)).toFixed(1);bmiEl.textContent=`${bmi}`}else{bmiEl.textContent="—"}
+  if(h>0&&w>0){
+    const m=h/100
+    const bmi=(w/(m*m))
+    bmiEl.textContent=`${bmi.toFixed(1)}`
+    let status="",cls="badge"
+    if(bmi<18.5){status="Underweight";cls="badge bmi-warn"}
+    else if(bmi<25){status="Normal";cls="badge bmi-ok"}
+    else if(bmi<30){status="Overweight";cls="badge bmi-warn"}
+    else {status="Obese";cls="badge bmi-danger"}
+    if(bmiStatus){bmiStatus.textContent=status;bmiStatus.className=cls}
+  }else{
+    bmiEl.textContent="—"
+    if(bmiStatus){bmiStatus.textContent="";bmiStatus.className="badge"}
+  }
 }
 function loadProfile(){
   const s=localStorage.getItem("patientProfile")
@@ -574,4 +791,23 @@ function loadProfile(){
 ;(function init(){
   const s=localStorage.getItem("patientProfile")
   if(s){updateAvatar(JSON.parse(s))}
+  if(heightI){heightI.addEventListener("input",()=>updateBmi({height:parseFloat(heightI.value||"0"),weight:parseFloat(weightI.value||"0")}))}
+  if(weightI){weightI.addEventListener("input",()=>updateBmi({height:parseFloat(heightI.value||"0"),weight:parseFloat(weightI.value||"0")}))}
+  if(photoFile){photoFile.addEventListener("change",e=>{
+    const f=e.target.files&&e.target.files[0]
+    if(!f)return
+    const r=new FileReader()
+    r.onload=()=>{
+      localStorage.setItem("patientPhoto",r.result)
+      updateAvatar(JSON.parse(localStorage.getItem("patientProfile")||"{}"))
+      if(profileAvatarPreview){profileAvatarPreview.src=r.result}
+    }
+    r.readAsDataURL(f)
+  })}
+  if(btnClearPhoto){btnClearPhoto.addEventListener("click",()=>{
+    localStorage.removeItem("patientPhoto")
+    updateAvatar(JSON.parse(localStorage.getItem("patientProfile")||"{}"))
+    if(profileAvatarPreview){profileAvatarPreview.src=""}
+  })}
+  if(btnChangePhoto){btnChangePhoto.addEventListener("click",()=>{if(photoFile)photoFile.click()})}
 })()
